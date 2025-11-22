@@ -1,14 +1,45 @@
-import { useState } from "react";
-import { Upload, Sparkles, FolderOpen, Settings, Package } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Upload, Sparkles, FolderOpen, Settings, Package, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AssetLibrary } from "@/components/dashboard/AssetLibrary";
 import { UploadZone } from "@/components/dashboard/UploadZone";
 import { PipelineStatus } from "@/components/dashboard/PipelineStatus";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  const { user, isLoading, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState("library");
+
+  useEffect(() => {
+    if (!isLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, isLoading, navigate]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success("Signed out successfully");
+    navigate("/");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-accent flex items-center justify-center">
+        <Card className="p-8">
+          <p className="text-muted-foreground">Loading...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-accent">
@@ -27,10 +58,16 @@ const Dashboard = () => {
                 <p className="text-xs text-muted-foreground">Creator Dashboard</p>
               </div>
             </div>
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+              <Button variant="outline" size="sm">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Button>
+            </div>
           </div>
         </div>
       </header>

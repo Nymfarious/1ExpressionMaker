@@ -1,10 +1,18 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Sparkles, Layers, Wand2, Package, ArrowRight } from "lucide-react";
+import { Sparkles, Layers, Wand2, Package, ArrowRight, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setIsAuthenticated(!!user);
+  }, [user]);
 
   return (
     <div className="min-h-screen bg-gradient-accent">
@@ -32,17 +40,35 @@ const Index = () => {
             </p>
             
             <div className="flex gap-4 justify-center">
-              <Button
-                size="lg"
-                className="bg-gradient-primary hover:shadow-glow transition-all"
-                onClick={() => navigate("/dashboard")}
-              >
-                Open Dashboard
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-              <Button size="lg" variant="outline">
-                Learn More
-              </Button>
+              {isAuthenticated ? (
+                <Button
+                  size="lg"
+                  className="bg-gradient-primary hover:shadow-glow transition-all"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  Open Dashboard
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    size="lg"
+                    className="bg-gradient-primary hover:shadow-glow transition-all"
+                    onClick={() => navigate("/auth")}
+                  >
+                    Get Started
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    onClick={() => navigate("/auth")}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Sign In
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
