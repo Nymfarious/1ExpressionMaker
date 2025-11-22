@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useUploadAsset } from "@/hooks/useAssetPacks";
+import { supabase } from "@/integrations/supabase/client";
 
 export const UploadZone = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -13,6 +15,16 @@ export const UploadZone = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [assetName, setAssetName] = useState("");
   const [description, setDescription] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const uploadMutation = useUploadAsset();
+
+  // Check authentication status
+  useState(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setIsAuthenticated(!!data.user);
+    });
+  });
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -55,7 +67,12 @@ export const UploadZone = () => {
     toast.success("Image loaded successfully");
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!isAuthenticated) {
+      toast.error("Please sign in to upload assets");
+      return;
+    }
+    
     if (!selectedFile) {
       toast.error("Please select a file first");
       return;
@@ -64,9 +81,18 @@ export const UploadZone = () => {
       toast.error("Please provide an asset name");
       return;
     }
-    
-    toast.success("Starting AI pipeline processing...");
-    // TODO: Implement actual upload and pipeline trigger
+
+    await uploadMutation.mutateAsync({
+      file: selectedFile,
+      name: assetName,
+      description,
+    });
+
+    // Reset form
+    setSelectedFile(null);
+    setPreview(null);
+    setAssetName("");
+    setDescription("");
   };
 
   return (
@@ -217,9 +243,10 @@ export const UploadZone = () => {
           <Button
             className="w-full mt-6 bg-gradient-primary hover:shadow-glow transition-all"
             onClick={handleSubmit}
+            disabled={uploadMutation.isPending || !isAuthenticated}
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            Start AI Pipeline
+            {uploadMutation.isPending ? "Processing..." : isAuthenticated ? "Start AI Pipeline" : "Sign In Required"}
           </Button>
         )}
       </Card>

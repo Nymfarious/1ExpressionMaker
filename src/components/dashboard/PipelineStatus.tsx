@@ -2,30 +2,35 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, Clock, Sparkles, Loader2 } from "lucide-react";
+import { usePipelineJobs, useAssetPacks } from "@/hooks/useAssetPacks";
 
-// Mock pipeline jobs
-const mockJobs = [
-  {
-    id: "1",
-    name: "Purple Cat Girl VTuber Pack",
-    status: "completed",
-    progress: 100,
-    currentStage: "Export Preparation",
-    startedAt: "2024-01-15 14:30",
-    completedAt: "2024-01-15 14:45",
-  },
-  {
-    id: "2",
-    name: "Blue Fox Character Set",
-    status: "processing",
-    progress: 65,
-    currentStage: "Expression Generation",
-    startedAt: "2024-01-20 10:15",
-    completedAt: null,
-  },
-];
+const stageLabels = {
+  decomposition: "Image Decomposition",
+  expression_generation: "Expression Generation",
+  export_preparation: "Export Preparation",
+};
 
 export const PipelineStatus = () => {
+  const { data: assetPacks } = useAssetPacks();
+  const { data: allJobs, isLoading } = usePipelineJobs();
+
+  if (isLoading) {
+    return (
+      <Card className="p-12 text-center shadow-card">
+        <p className="text-muted-foreground">Loading pipeline jobs...</p>
+      </Card>
+    );
+  }
+
+  // Get asset pack names for jobs
+  const jobsWithNames = (allJobs || []).map((job) => {
+    const assetPack = assetPacks?.find((ap) => ap.id === job.asset_pack_id);
+    return {
+      ...job,
+      assetPackName: assetPack?.name || "Unknown Asset",
+    };
+  });
+
   return (
     <div className="space-y-4">
       <div>
@@ -36,7 +41,7 @@ export const PipelineStatus = () => {
       </div>
 
       <div className="space-y-4">
-        {mockJobs.map((job) => (
+        {jobsWithNames.map((job) => (
           <Card key={job.id} className="p-6 shadow-card">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-start gap-3">
@@ -44,6 +49,8 @@ export const PipelineStatus = () => {
                   className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                     job.status === "completed"
                       ? "bg-green-100 dark:bg-green-900/30"
+                      : job.status === "failed"
+                      ? "bg-red-100 dark:bg-red-900/30"
                       : "bg-gradient-primary shadow-glow"
                   }`}
                 >
@@ -54,9 +61,9 @@ export const PipelineStatus = () => {
                   )}
                 </div>
                 <div>
-                  <h4 className="font-semibold">{job.name}</h4>
+                  <h4 className="font-semibold">{job.assetPackName}</h4>
                   <p className="text-sm text-muted-foreground mt-0.5">
-                    {job.currentStage}
+                    {stageLabels[job.stage]}
                   </p>
                 </div>
               </div>
@@ -83,19 +90,24 @@ export const PipelineStatus = () => {
             <div className="flex items-center gap-6 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4" />
-                <span>Started: {job.startedAt}</span>
+                <span>Started: {job.started_at ? new Date(job.started_at).toLocaleString() : "Not started"}</span>
               </div>
-              {job.completedAt && (
+              {job.completed_at && (
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Completed: {job.completedAt}</span>
+                  <span>Completed: {new Date(job.completed_at).toLocaleString()}</span>
                 </div>
               )}
             </div>
+            {job.error_message && (
+              <p className="text-sm text-red-600 dark:text-red-400 mt-2">
+                Error: {job.error_message}
+              </p>
+            )}
           </Card>
         ))}
 
-        {mockJobs.length === 0 && (
+        {jobsWithNames.length === 0 && (
           <Card className="p-12 text-center shadow-card">
             <div className="max-w-md mx-auto">
               <div className="w-16 h-16 rounded-full bg-gradient-primary mx-auto mb-4 flex items-center justify-center shadow-glow">
