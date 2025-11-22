@@ -1,0 +1,7 @@
+project_id = "ngujiykbzcrfkzuwqvpa"
+
+[functions.upload-asset]
+verify_jwt = true
+
+[functions.process-image]
+verify_jwt = true
