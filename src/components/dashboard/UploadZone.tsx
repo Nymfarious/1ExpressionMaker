@@ -1,13 +1,13 @@
 import { useState, useCallback } from "react";
-import { Upload, Image as ImageIcon, Sparkles } from "lucide-react";
+import { Upload, Image as ImageIcon, Sparkles, Info } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { useUploadAsset } from "@/hooks/useAssetPacks";
-import { supabase } from "@/integrations/supabase/client";
+import { useDemoUpload } from "@/hooks/useDemoUpload";
 
 export const UploadZone = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -15,16 +15,8 @@ export const UploadZone = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [assetName, setAssetName] = useState("");
   const [description, setDescription] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const uploadMutation = useUploadAsset();
-
-  // Check authentication status
-  useState(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setIsAuthenticated(!!data.user);
-    });
-  });
+  const demoUploadMutation = useDemoUpload();
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -68,11 +60,6 @@ export const UploadZone = () => {
   };
 
   const handleSubmit = async () => {
-    if (!isAuthenticated) {
-      toast.error("Please sign in to upload assets");
-      return;
-    }
-    
     if (!selectedFile) {
       toast.error("Please select a file first");
       return;
@@ -82,10 +69,11 @@ export const UploadZone = () => {
       return;
     }
 
-    await uploadMutation.mutateAsync({
+    await demoUploadMutation.mutateAsync({
       file: selectedFile,
       name: assetName,
       description,
+      previewUrl: preview || "",
     });
 
     // Reset form
@@ -100,6 +88,13 @@ export const UploadZone = () => {
       {/* Upload Area */}
       <Card className="p-6 shadow-card">
         <h3 className="text-lg font-semibold mb-4">Upload Character Image</h3>
+        
+        <Alert className="mb-4">
+          <Info className="h-4 w-4" />
+          <AlertDescription>
+            Demo mode: AI processing is simulated. No actual image processing occurs.
+          </AlertDescription>
+        </Alert>
         
         <div
           className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all ${
@@ -194,9 +189,9 @@ export const UploadZone = () => {
             <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold">AI Pipeline Process</h3>
+            <h3 className="text-lg font-semibold">Demo Pipeline Process</h3>
             <p className="text-sm text-muted-foreground">
-              What happens after you upload
+              What happens after you upload (simulated)
             </p>
           </div>
         </div>
@@ -243,10 +238,10 @@ export const UploadZone = () => {
           <Button
             className="w-full mt-6 bg-gradient-primary hover:shadow-glow transition-all"
             onClick={handleSubmit}
-            disabled={uploadMutation.isPending || !isAuthenticated}
+            disabled={demoUploadMutation.isPending}
           >
             <Sparkles className="w-4 h-4 mr-2" />
-            {uploadMutation.isPending ? "Processing..." : isAuthenticated ? "Start AI Pipeline" : "Sign In Required"}
+            {demoUploadMutation.isPending ? "Processing Demo..." : "Start Demo Pipeline"}
           </Button>
         )}
       </Card>

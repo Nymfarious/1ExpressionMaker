@@ -25,14 +25,14 @@ const Auth = () => {
     // Check if user is already logged in
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        navigate("/dashboard");
+        navigate("/");
       }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
-        navigate("/dashboard");
+        navigate("/");
       }
     });
 
@@ -58,7 +58,7 @@ const Auth = () => {
 
     setIsLoading(true);
     try {
-      const redirectUrl = `${window.location.origin}/dashboard`;
+      const redirectUrl = `${window.location.origin}/`;
       
       const { error } = await supabase.auth.signUp({
         email,
@@ -122,10 +122,10 @@ const Auth = () => {
             <Sparkles className="w-8 h-8 text-primary-foreground" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
-            Nano Banana PRO
+            VTuber Asset Creator
           </h1>
           <p className="text-muted-foreground">
-            Create amazing VTuber assets with AI
+            Sign in to save your assets
           </p>
         </div>
 
@@ -237,7 +237,7 @@ const Auth = () => {
             onClick={() => navigate("/")}
             className="text-sm text-muted-foreground"
           >
-            ← Back to home
+            ← Continue as guest
           </Button>
         </div>
       </div>

@@ -1,45 +1,24 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, Sparkles, FolderOpen, Settings, Package, LogOut } from "lucide-react";
+import { Upload, Sparkles, FolderOpen, Settings, Package, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { AssetLibrary } from "@/components/dashboard/AssetLibrary";
 import { UploadZone } from "@/components/dashboard/UploadZone";
 import { PipelineStatus } from "@/components/dashboard/PipelineStatus";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { user, isLoading, signOut } = useAuth();
+  const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState("library");
-
-  useEffect(() => {
-    if (!isLoading && !user) {
-      navigate("/auth");
-    }
-  }, [user, isLoading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
-    toast.success("Signed out successfully");
     navigate("/");
   };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-accent flex items-center justify-center">
-        <Card className="p-8">
-          <p className="text-muted-foreground">Loading...</p>
-        </Card>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen bg-gradient-accent">
@@ -52,21 +31,32 @@ const Dashboard = () => {
                 <Sparkles className="w-5 h-5 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  Nano Banana PRO
-                </h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                    VTuber Asset Creator
+                  </h1>
+                  <Badge variant="secondary" className="text-xs">Demo</Badge>
+                </div>
                 <p className="text-xs text-muted-foreground">Creator Dashboard</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-              <Button variant="outline" size="sm">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </Button>
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
+                    Sign Out
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" size="sm" onClick={() => navigate("/auth")}>
+                  <LogIn className="w-4 h-4 mr-2" />
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -75,9 +65,9 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-2">Welcome back!</h2>
+          <h2 className="text-3xl font-bold mb-2">Welcome to the Demo!</h2>
           <p className="text-muted-foreground">
-            Manage your VTuber assets and monitor AI pipeline processing
+            Explore the VTuber asset creation interface. AI processing is simulated in demo mode.
           </p>
         </div>
 
