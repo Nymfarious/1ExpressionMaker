@@ -10,13 +10,16 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Only use basename for GitHub Pages deployment, not for Lovable preview
+const basename = import.meta.env.PROD ? "/1ExpressionMaker" : "/";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <SoundProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter basename="/1ExpressionMaker">
+        <BrowserRouter basename={basename}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/auth" element={<Auth />} />
