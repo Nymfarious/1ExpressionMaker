@@ -5,7 +5,7 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/1ExpressionMaker/",
+  base: mode === "production" ? "/VTuber-Asset-Creator/" : "/",
   server: {
     host: "::",
     port: 8080,
