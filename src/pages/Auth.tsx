@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
+import { BunnyMascot } from "@/components/BunnyMascot";
 
 const emailSchema = z.string().email("Invalid email address");
 const passwordSchema = z
@@ -22,14 +23,12 @@ const Auth = () => {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    // Check if user is already logged in
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         navigate("/");
       }
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
         navigate("/");
@@ -75,8 +74,7 @@ const Auth = () => {
           toast.error(error.message);
         }
       } else {
-        toast.success("Account created! Check your email to confirm (or sign in directly if email confirmation is disabled).");
-        // Clear form
+        toast.success("Account created! 🐰");
         setEmail("");
         setPassword("");
       }
@@ -105,7 +103,7 @@ const Auth = () => {
           toast.error(error.message);
         }
       } else {
-        toast.success("Signed in successfully!");
+        toast.success("Welcome back! 🐰");
       }
     } catch (error) {
       toast.error("An unexpected error occurred");
@@ -115,25 +113,25 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-accent flex items-center justify-center p-6">
+    <div className="min-h-screen bg-gradient-soft flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-primary mx-auto mb-4 flex items-center justify-center shadow-glow">
-            <Sparkles className="w-8 h-8 text-primary-foreground" />
+          <div className="mx-auto mb-4 flex items-center justify-center">
+            <BunnyMascot size="lg" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl font-bold text-foreground mb-2">
             VTuber Asset Creator
           </h1>
           <p className="text-muted-foreground">
-            Sign in to save your assets
+            Sign in to save your cute creations!
           </p>
         </div>
 
-        <Card className="p-6 shadow-elevated">
+        <Card className="p-6 shadow-soft border-2 border-primary/10 rounded-3xl">
           <Tabs defaultValue="signin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-6 rounded-2xl">
+              <TabsTrigger value="signin" className="rounded-xl">Sign In</TabsTrigger>
+              <TabsTrigger value="signup" className="rounded-xl">Sign Up</TabsTrigger>
             </TabsList>
 
             <TabsContent value="signin">
@@ -143,12 +141,12 @@ const Auth = () => {
                   <Input
                     id="signin-email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="bunny@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isLoading}
                     required
-                    className="mt-1.5"
+                    className="mt-1.5 rounded-xl"
                   />
                 </div>
                 <div>
@@ -161,12 +159,12 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
                     required
-                    className="mt-1.5"
+                    className="mt-1.5 rounded-xl"
                   />
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-primary hover:shadow-glow transition-all"
+                  className="w-full bg-primary hover:bg-primary/90 rounded-xl transition-all"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -175,7 +173,7 @@ const Auth = () => {
                       Signing in...
                     </>
                   ) : (
-                    "Sign In"
+                    "Sign In 🐰"
                   )}
                 </Button>
               </form>
@@ -188,12 +186,12 @@ const Auth = () => {
                   <Input
                     id="signup-email"
                     type="email"
-                    placeholder="you@example.com"
+                    placeholder="bunny@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     disabled={isLoading}
                     required
-                    className="mt-1.5"
+                    className="mt-1.5 rounded-xl"
                   />
                 </div>
                 <div>
@@ -206,15 +204,15 @@ const Auth = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     disabled={isLoading}
                     required
-                    className="mt-1.5"
+                    className="mt-1.5 rounded-xl"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Minimum 6 characters
+                    At least 6 characters
                   </p>
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-primary hover:shadow-glow transition-all"
+                  className="w-full bg-primary hover:bg-primary/90 rounded-xl transition-all"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -223,7 +221,7 @@ const Auth = () => {
                       Creating account...
                     </>
                   ) : (
-                    "Create Account"
+                    "Create Account 🐰"
                   )}
                 </Button>
               </form>
@@ -235,7 +233,7 @@ const Auth = () => {
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
-            className="text-sm text-muted-foreground"
+            className="text-sm text-muted-foreground hover:text-foreground rounded-xl"
           >
             ← Continue as guest
           </Button>
